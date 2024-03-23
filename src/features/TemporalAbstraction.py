@@ -7,6 +7,8 @@
 #                                                            #
 ##############################################################
 
+# updated by Ahmed Taibeche
+
 
 import numpy as np
 import scipy.stats as stats
@@ -38,9 +40,7 @@ class NumericalAbstraction:
 
         # Create new columns for the temporal data, pass over the dataset and compute values
         for col in cols:
-            data_table[
-                col + "_temp_" + aggregation_function + "_ws_" + str(window_size)
-            ] = (
+            data_table[col + "_" + aggregation_function + "_ws_" + str(window_size)] = (
                 data_table[col]
                 .rolling(window_size)
                 .apply(self.aggregate_value(aggregation_function))
