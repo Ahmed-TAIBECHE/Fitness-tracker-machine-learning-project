@@ -1,0 +1,28 @@
+#hey guys for everyone is gonna use this from github download the "environment.yml" in your workspace and use the first command in your terminal
+# Conda Environment Setup Instructions
+#  - Using an environment.yml file with conda
+#  - Key Terminal Commands:
+#
+#1    conda env create -f environment.yml
+#2    conda env update --file environment.yml --prune
+#3    conda env export --name tracking-barbell-exercises > environment.yml
+#4    conda env remove --name tracking-barbell-exercises
+#5    conda env list
+
+name: tracking-barbell-exercises
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8.15
+  - pip
+  - bottleneck
+  - pip:
+      - numpy==1.23.5
+      - pandas==1.5.2
+      - ipykernel==6.17.1
+      - ipython==8.7.0
+      - jupyter-client==7.4.7
+      - jupyter-core==5.1.0
+      - matplotlib==3.6.2
