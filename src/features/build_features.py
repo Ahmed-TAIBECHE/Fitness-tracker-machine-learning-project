@@ -120,7 +120,39 @@ subset[["acc_r", "gyr_r"]].plot(subplots=True)
 # Temporal abstraction
 # --------------------------------------------------------------
 
+df_temporal = df_squared.copy()
+NumAbs = NumericalAbstraction()
 
+predictor_columns = predictor_columns + ["acc_r", "gyr_r"]
+
+# it's not exact science how to set ws
+# so we have to set it with trial and error
+ws = int(1000 / 200)
+
+df_temporal_list = []
+
+for s in df_temporal["set"].unique():
+    """Separates data into individual sets.
+
+    The rolling window calculation used later depends on previous samples within
+    a set. Combining data from multiple exercises or sets would lead to inaccurate
+    features and unreliable results. This function ensures each set is processed
+    independently.
+    """
+
+    subset = df_temporal[df_temporal["set"] == s].copy()
+    for col in predictor_columns:
+        subset = NumAbs.abstract_numerical(subset, [col], ws, "mean")
+        subset = NumAbs.abstract_numerical(subset, [col], ws, "std")
+    df_temporal_list.append(subset)
+
+# regroup all the data together back if you run df_temporal.info() you will find
+# that some of the data is missing This is ok rather than mix the data together
+# df_temporal = pd.concat(df_temporal_list)
+
+# see the results
+subset[["acc_y", "acc_y_temp_mean_ws_5", "acc_y_temp_std_ws_5"]].plot()
+subset[["gyr_y", "gyr_y_temp_mean_ws_5", "gyr_y_temp_std_ws_5"]].plot()
 # --------------------------------------------------------------
 # Frequency features
 # --------------------------------------------------------------
