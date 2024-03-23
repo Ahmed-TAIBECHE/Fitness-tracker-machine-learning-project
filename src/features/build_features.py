@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from DataTransformation import LowPassFilter, PrincipalComponentAnalysis
 from TemporalAbstraction import NumericalAbstraction
-
+from FrequencyAbstraction import FourierTransformation
+from sklearn.cluster import KMeans
 
 # --------------------------------------------------------------
 # Load data
@@ -148,26 +149,111 @@ for s in df_temporal["set"].unique():
 
 # regroup all the data together back if you run df_temporal.info() you will find
 # that some of the data is missing This is ok rather than mix the data together
-# df_temporal = pd.concat(df_temporal_list)
+df_temporal = pd.concat(df_temporal_list)
 
 # see the results
-subset[["acc_y", "acc_y_temp_mean_ws_5", "acc_y_temp_std_ws_5"]].plot()
-subset[["gyr_y", "gyr_y_temp_mean_ws_5", "gyr_y_temp_std_ws_5"]].plot()
+subset[["acc_y", "acc_y_mean_ws_5", "acc_y_std_ws_5"]].plot()
+subset[["gyr_y", "gyr_y_mean_ws_5", "gyr_y_std_ws_5"]].plot()
 # --------------------------------------------------------------
 # Frequency features
 # --------------------------------------------------------------
+# we need to drop the time index to use the frequency terminology
+df_freq = df_temporal.copy().reset_index()
+FreqAbs = FourierTransformation()
+
+# define the sampling rate which expresses the number of samples per second
+fs = int(1000 / 200)
+ws = int(2800 / 200)
+
+# test for one set of the data
+df_freq = FreqAbs.abstract_frequency(df_freq, ["acc_y"], ws, fs)
+# Visualize results
+subset = df_freq[df_freq["set"] == 15]
+subset[["acc_y"]].plot()
+subset[
+    [
+        "acc_y_max_freq",
+        "acc_y_freq_weighted",
+        "acc_y_pse",
+        "acc_y_freq_1.429_Hz_ws_14",
+        "acc_y_freq_2.5_Hz_ws_14",
+    ]
+].plot()
+
+df_freq_list = []
+
+for s in df_freq["set"].unique():
+    print(f"Applying Fourier transformations to set {s}")
+    subset = df_freq[df_freq["set"] == s].reset_index(drop=True).copy()
+    subset = FreqAbs.abstract_frequency(subset, predictor_columns, ws, fs)
+    df_freq_list.append(subset)
 
 
+df_freq = pd.concat(df_freq_list).set_index("epoch (ms)", drop=True)
+df_freq.info()
 # --------------------------------------------------------------
 # Dealing with overlapping windows
 # --------------------------------------------------------------
 
+# the data is highly correlated because we used ws of 14 thus could cause overfitting
+# so we are going to deal with that we will drop Nan values and
+# it's recommanded to drop 50% if we have enough data
+df_freq = df_freq.dropna()
 
+df_freq = df_freq.iloc[::2]
+for x in df_freq.columns.unique():
+    print(x)
 # --------------------------------------------------------------
 # Clustering
 # --------------------------------------------------------------
+df_cluster = df_freq.copy()
 
+cluster_columns = list(df_freq.columns.unique()[:3])
+k_values = range(2, 10)
+inertias = []
+for k in k_values:
+    subset = df_cluster[cluster_columns]
+    kmeans = KMeans(n_clusters=k, n_init=20, random_state=0)
+    cluster_labels = kmeans.fit_predict(subset)
+    inertias.append(kmeans.inertia_)
+
+# plot to use the elbow technique to get the right number of clusters
+plt.figure(figsize=(20, 10))
+plt.plot(k_values, inertias)
+plt.xlabel("K")
+plt.ylabel("sum of the squared distances")
+plt.show()
+
+# from the graph we can see that k=5
+subset = df_cluster[cluster_columns]
+kmeans = KMeans(n_clusters=5, n_init=20, random_state=0)
+df_cluster["cluster"] = kmeans.fit_predict(subset)
+
+# Plot clusters grouping clusters
+fig = plt.figure(figsize=(15, 15))
+ax = fig.add_subplot(projection="3d")
+for c in df_cluster["cluster"].unique():
+    subset = df_cluster[df_cluster["cluster"] == c]
+    ax.scatter(subset["acc_x"], subset["acc_y"], subset["acc_z"], label=c)
+ax.set_xlabel("X-axis")
+ax.set_ylabel("Y-axis")
+ax.set_zlabel("Z-axis")
+plt.legend()
+plt.show()
+
+# plot accelemoeter data based on label to compare
+fig = plt.figure(figsize=(15, 15))
+ax = fig.add_subplot(projection="3d")
+for l in df_cluster["label"].unique():
+    subset = df_cluster[df_cluster["label"] == l]
+    ax.scatter(subset["acc_x"], subset["acc_y"], subset["acc_z"], label=l)
+ax.set_xlabel("X-axis")
+ax.set_ylabel("Y-axis")
+ax.set_zlabel("Z-axis")
+plt.legend()
+plt.show()
 
 # --------------------------------------------------------------
 # Export dataset
 # --------------------------------------------------------------
+df_cluster.to_pickle("../../data/interim/data_features.pkl")
