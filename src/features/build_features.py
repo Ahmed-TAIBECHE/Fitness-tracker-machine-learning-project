@@ -78,12 +78,43 @@ for col in predictor_columns:
 # --------------------------------------------------------------
 # Principal component analysis PCA
 # --------------------------------------------------------------
+df_pca = df_lowpass.copy()
+# create an instance PCA of PrincipalComponentClass
+PCA = PrincipalComponentAnalysis()
 
+pc_values = PCA.determine_pc_explained_variance(df_pca, predictor_columns)
+
+# plot the PC to use the elbow technique in order to find the number of PCA
+plt.figure(figsize=(10, 10))
+plt.plot(range(1, len(predictor_columns) + 1), pc_values)
+plt.xlabel("principal component number")
+plt.ylabel("explained variance")
+plt.show()
+
+# from the graph we can clearly see the elbow on component 3 so we are taking n_pc =3
+df_pca = PCA.apply_pca(df_pca, predictor_columns, 3)
+
+
+subset = df_pca[df_pca["set"] == 45]
+subset[["pca_1", "pca_2", "pca_3"]].plot()
 
 # --------------------------------------------------------------
-# Sum of squares attributes
+# Sum of squares attributes (calculate Scalar Magnitude)
+# r= sqrt((x^2) + (y^2) + (z^2))
 # --------------------------------------------------------------
+df_squared = df_pca.copy()
 
+# calcaulating acc magnitude
+acc_r = df_squared["acc_x"] ** 2 + df_squared["acc_y"] ** 2 + df_squared["acc_z"] ** 2
+df_squared["acc_r"] = np.sqrt(acc_r)
+
+# calcaulating gyr magnitude
+gyr_r = df_squared["gyr_x"] ** 2 + df_squared["gyr_y"] ** 2 + df_squared["gyr_z"] ** 2
+df_squared["gyr_r"] = np.sqrt(gyr_r)
+
+# plot acc_r and gyr_r
+subset = df_squared[df_squared["set"] == 5]
+subset[["acc_r", "gyr_r"]].plot(subplots=True)
 
 # --------------------------------------------------------------
 # Temporal abstraction
