@@ -4,6 +4,7 @@ ipykernel==6.17.1
 ipython==8.7.0
 jupyter-client==7.4.7
 jupyter-core==5.1.0
-matplotlib==3.6.2
+matplotlib==3.7
 scikit-learn
 black
+seaborn

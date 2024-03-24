@@ -4,8 +4,8 @@
 
 **Project Goal**
 
-This project aims to process, visualize, and model accelerometer and gyroscope data from a fitness tracker to create a machine learning model capable of classifying barbell exercises and counting repetitions.
-
+This project aims to process, visualize, and model accelerometer and gyroscope data from a fitness tracker to create a machine learning model capable of classifying 5 barbell exercises and counting repetitions.
+to see the exercises go to `reports\exercices`
 
 # Attention my goal from this project is to :
 
@@ -31,7 +31,7 @@ This project is structured into six parts:
 * **Part 7:** Counting Repetitions, Creating a Custom Algorithm
 
 
-# You can run this project by running the next codes by order (which are totaly created by me ):
+# You can run this project by running the next codes by order:
 ### 1. makes_dataset.py
 ### 2. visualize.py
 ### 3. remove_outliers.py
