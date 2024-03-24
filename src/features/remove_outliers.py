@@ -1,8 +1,16 @@
-import pandas as pd
+##############################################################
+#                                                            #
+#                                                            #
+#            Created by Ahmed Taibeche                       #
+#                                                            #
+#                                                            #
+#                                                            #
+##############################################################
 
+
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
 from plot_binary_outliers import *
 from outlier_detection_functions import *
 

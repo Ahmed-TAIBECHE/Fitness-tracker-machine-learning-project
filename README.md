@@ -6,6 +6,14 @@
 
 This project aims to process, visualize, and model accelerometer and gyroscope data from a fitness tracker to create a machine learning model capable of classifying barbell exercises and counting repetitions.
 
+
+# Attention my goal from this project is to :
+
+### 1. data processing and creating features from raw data
+
+### 2.Experience with machine learning algorithms not to code.This project draws upon my experience with machine learning algorithms. I've implemented a variety of algorithms myself, while also incorporating elements from publicly available sources where applicable. These external sources are included at the beginning of relevant files within commented sections for reference. My original code contributions are also clearly marked within the files
+
+
 **Acknowledgement**
 
 A big thank you to mhoogen: `https://github.com/mhoogen/ML4QS/` ML4QS repository, an extension for the book "Machine learning for the quantified self. On the art of learning from sensory data" by Hoogendoorn, M., & Funk, B. (2018), for providing inspiration and code utilized in this project.
@@ -21,6 +29,18 @@ This project is structured into six parts:
 * **Part 5:** Feature Engineering, Frequency, Low Pass Filter, PCA, Clustering
 * **Part 6:** Predictive Modelling, Naive Bayes, SVMs, Random Forest, Neural Network
 * **Part 7:** Counting Repetitions, Creating a Custom Algorithm
+
+
+# You can run this project by running the next codes by order (which are totaly created by me ):
+### 1. makes_dataset.py
+### 2. visualize.py
+### 3. remove_outliers.py
+### 4. build_features.py
+### 5. train_model.py
+### 6. predict_model.py
+### 6. count_repetitions.py
+
+
 
 **Data**
 
