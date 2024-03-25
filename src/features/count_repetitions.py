@@ -83,8 +83,8 @@ LowPass = LowPassFilter()
 # --------------------------------------------------------------
 bench_set = bench_df[bench_df["set"] == bench_df.set[0]]
 squat_set = squat_df[squat_df["set"] == squat_df.set[1]]
-ohp_set = ohp_df[ohp_df["set"] == ohp_df.set[1]]
-row_set = row_df[row_df["set"] == row_df.set[1]]
+ohp_set = ohp_df[ohp_df["set"] == 16]
+row_set = row_df[row_df["set"] == row_df.set[40]]
 dead_set = dead_df[dead_df["set"] == dead_df.set[1]]
 
 column = "acc_r"
@@ -105,24 +105,58 @@ def count_reps(data, column="acc_r", fs=5, cutoff=0.4, order=10):
     minimum = dataset.iloc[indexes]
 
     # plot the results
-    fig, ax = plt.subplots()
-    plt.plot(dataset[f"{column}_lowpass"])
-    plt.plot(minimum[f"{column}_lowpass"], "o", color="red")
-    ax.set_ylabel(f" {column} lowpass")
-    exercise = dataset["label"].iloc[0].title()
-    category = dataset["category"].iloc[0].title()
-    plt.title(f"{category} {exercise}: {len(minimum)} Reps")
-    plt.show()
+    # fig, ax = plt.subplots()
+    # plt.plot(dataset[f"{column}_lowpass"])
+    # plt.plot(minimum[f"{column}_lowpass"], "o", color="red")
+    # ax.set_ylabel(f" {column} lowpass")
+    # exercise = dataset["label"].iloc[0].title()
+    # category = dataset["category"].iloc[0].title()
+    # plt.title(f"{category} {exercise}: {len(minimum)} Reps")
+    # plt.show()
 
     return len(minimum)
 
 
-reps = count_reps(bench_set)
+count_reps(bench_set, cutoff=0.4)
+count_reps(squat_set, cutoff=0.35)
+count_reps(row_set, cutoff=0.72, column="acc_r")
+count_reps(ohp_set, cutoff=0.6, column = "acc_y")
+count_reps(dead_set, cutoff=0.4)
+
 # --------------------------------------------------------------
 # Create benchmark dataframe
 # --------------------------------------------------------------
+df["reps"] = df["category"].apply(lambda x: 5 if x == "heavy" else 10)
+rep_df = df.groupby(["label", "category", "set"])["reps"].max().reset_index()
+rep_df["reps_pred"] = 0
 
+for s in df["set"].unique():
+    subset = df[df["set"] == s]
+
+    if subset.iloc[0]["label"] in ["bench", "dead"]:
+        column = "acc_r"
+        cuttof = 0.4
+
+    if subset.iloc[0]["label"] == "ohp":
+        column = "acc_y"
+        cuttof = 0.6
+
+    if subset.iloc[0]["label"] == "row":
+        column = "acc_r"
+        cuttof = 0.72
+
+    if subset.iloc[0]["label"] == "squat":
+        column = "acc_r"
+        cuttof = 0.35
+
+    reps = count_reps(subset, column, cutoff=cuttof)
+    rep_df.loc[rep_df["set"] == s, "reps_pred"] = reps
 
 # --------------------------------------------------------------
 # Evaluate the results
 # --------------------------------------------------------------
+
+error = mean_absolute_error(rep_df["reps"], rep_df["reps_pred"]).round(2)
+print(error)
+
+rep_df.groupby(["label", "category"])["reps", "reps_pred"].mean().plot.bar()
